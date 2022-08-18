@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body>
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <div class="m-4 place-items-center grid">
+        <h1 class="text-5xl">Create new reward</h1>
+
+        <form class="form form-control w-full max-w-md" method="post">
+            <label for="name" class="label label-text">Reward name</label>
+            <input class="input input-bordered w-full m-2" type="text" name="name" id="name" required placeholder="Whitelist">
+            <label for="cost" class="label label-text">Cost</label>
+            <input class="input input-bordered w-full m-2" type="number" name="cost" id="cost" required placeholder="1000">
+            <label for="server-password" class="label label-text">Server Command</label>
+            <input class="input input-bordered w-full m-2" type="text" name="command" id="command" required placeholder="/whitelist add $user">
+
+            <button class="btn btn-primary m-2">Submit</button>
+        </form>
+    </div>
+</body>
+</html>

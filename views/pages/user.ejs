@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include('../partials/head'); %>
+</head>
+<body>
+    <header>
+        <%- include('../partials/header'); %>
+    </header>
+
+    <div class="m-4 place-items-center grid">
+        <h1 class="text-5xl">Welcome, <%= user.username %></h1>
+
+
+        <h2 class="text-3xl">Server information:</h2>
+        <form class="form form-control w-full max-w-md" method="post">
+            <label for="server-ip" class="label label-text">Server IP</label>
+            <input class="input input-bordered w-full m-2" type="text" name="server-ip" id="server-ip" required value=" <%- user.server_ip %>">
+            <label for="port" class="label label-text">Server port</label>
+            <input class="input input-bordered w-full m-2" type="number" name="port" id="port" required value="<%- user.port %>">
+            <label for="server-password" class="label label-text">Server password</label>
+            <input class="input input-bordered w-full m-2" type="password" name="server-password" id="server-password" required>
+
+            <button class="btn btn-primary m-2">Submit</button>
+        </form>
+    </div>
+
+    <div id="commands" class="grid flex place-items-center">
+        <div class="card w-64 bg-primary text-primary-content">
+            <div class="card-body">
+              <h2 class="card-title">Create a new redemption reward here</h2>
+              <p></p>
+              <div class="card-actions justify-end">
+                <a href="/users/<%=user.id%>/rewards/"><button class="btn">Create</button></a>
+              </div>
+            </div>
+        </div>   
+        
+        <% user.commands.forEach(element => { %>
+            <div class="card w-64 bg-primary text-primary-content">
+                <div class="card-body">
+                  <h2 class="card-title"><%= element.name %> || <%= element.cost %> </h2>
+                  <p><%= element.command %></p>
+                  <div class="card-actions justify-end">
+                    <a href="/"><button class="btn">Delete</button></a>
+                  </div>
+                </div>
+            </div>   
+        <% }) %>
+    </div>
+
+</body>
+</html>
