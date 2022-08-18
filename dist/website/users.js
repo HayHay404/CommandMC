@@ -47,14 +47,15 @@ exports.router.route("/:userId/rewards/")
 })
     .post(async (req, res) => {
     const data = await req.body;
-    const userId = parseInt(req.params.userId);
+    const user = await db_1.db.user.findFirst({ where: { id: { equals: parseInt(req.params.userId) } } });
+    const userId = user?.id;
     await db_1.db.commands.create({ data: {
             name: data.name,
             cost: parseInt(data.cost),
             command: data.command,
-            userId: userId
-        } }).then(async (reward) => await (0, index_1.createChanelPointReward)(userId, reward));
-    return res.redirect(`/users/${userId}`);
+            userId: userId,
+        } }).then(async (reward) => await (0, index_1.createChanelPointReward)(user, reward));
+    return res.redirect(`/users/${user?.id}`);
 });
 exports.router.route("/:userId/rewards/:rewardId")
     .get(async (req, res) => {

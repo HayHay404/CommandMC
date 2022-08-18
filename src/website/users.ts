@@ -1,3 +1,4 @@
+import { User } from "@prisma/client";
 import { Router, Express } from "express";
 import { db } from "../db";
 import { createChanelPointReward } from "../index";
@@ -47,15 +48,16 @@ router.route("/:userId/rewards/")
 })
 .post(async (req, res) => {
     const data = await req.body;
-    const userId = parseInt(req.params.userId);
+    const user = await db.user.findFirst({where: {id: {equals: parseInt(req.params.userId)}}});
+    const userId = user?.id;
     await db.commands.create({data: {
         name: data.name,
         cost: parseInt(data.cost),
         command: data.command,
-        userId: userId
-    }}).then(async(reward) => await createChanelPointReward(userId, reward));
+        userId: userId as number,
+    }}).then(async(reward) => await createChanelPointReward(user as User, reward));
 
-    return res.redirect(`/users/${userId}`)
+    return res.redirect(`/users/${user?.id}`)
 })
 
 router.route("/:userId/rewards/:rewardId")

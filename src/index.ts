@@ -4,13 +4,14 @@ import { ChatClient } from "@twurple/chat";
 import { EnvPortAdapter, EventSubListener } from '@twurple/eventsub';
 import dotenv from "dotenv";
 import {promises as fs} from "fs";
-import { RCON } from "minecraft-server-util";
+import { RCON, status } from "minecraft-server-util";
 import { db } from "./db";
 import { app } from "./website/app";
-import { Commands } from "@prisma/client";
+import { Commands, User } from "@prisma/client";
 
 let api: ApiClient;
 let listener: EventSubListener;
+let chatClient : ChatClient;
 
 // .env should contain: CLIENT_ID, CLIENT_SECRET, PORT, SECRET
 dotenv.config({path: "../.env"});
@@ -44,7 +45,7 @@ async function main() {
     /* Create adapter and web server for bot to listen on
     * adapter provides the webserver domain and SSL, however SSL is obtained with a reverse proxy
     */
-    const adapter = new EnvPortAdapter({hostName: 'express.hayhay.cc'});
+    const adapter = new EnvPortAdapter({hostName: process.env["HOSTNAME"] as string});
     const secret = process.env["SECRET"] as string;
     listener = new EventSubListener({ apiClient, adapter, secret, strictHostCheck: false });
     await listener.listen().then(() => listener.removeListener());
@@ -52,7 +53,7 @@ async function main() {
     const authProvider = await getAuthProvider()
 
     // Creates chatClient to respond to users.
-    const chatClient = new ChatClient({ authProvider: authProvider, channels: ['HayHayIsLive'] });
+    chatClient = new ChatClient({ authProvider: authProvider, channels: ['HayHayIsLive'] });
     await chatClient.connect();
 
     // Creates new ApiClient to create channel point redemptions.
@@ -64,17 +65,19 @@ async function main() {
         userList.forEach(async (usr) => {
 
             usr.commands.forEach(async (command) => {
-                await createChanelPointReward(usr.id, command)
+                await createChanelPointReward(usr, command)
             })
         });
     })
 }
 
-export async function createChanelPointReward(userId : number, command: Commands) {
-
+export async function createChanelPointReward(user : User, command: Commands) {
     try {
-        if (command.reward_id == null) {
-            const reward = await api.channelPoints.createCustomReward(userId, 
+        try {
+            // if returned with a 404, it automatically creates the new channel point reward
+            await api.channelPoints.getCustomRewardById(user.id, command.reward_id as string)
+        } catch (error) {
+            const reward = await api.channelPoints.createCustomReward(user.id, 
                 {title: command.name, cost: command.cost | 1000, userInputRequired: true});
         
             const update = await db.commands.update({
@@ -84,22 +87,51 @@ export async function createChanelPointReward(userId : number, command: Commands
                 }
             })
         }
-
-        return createListener(userId, command.reward_id as string)
-    } catch(error) {}
+        
+        return createListener(user, command.reward_id as string)
+    }
+    catch(error) {
+        console.log(error)
+    }
 }
 
-async function createListener(userId : number, rewardId : string) {
+async function createListener(user : User, rewardId : string) {
     try {
-        await listener.subscribeToChannelRedemptionAddEvents(userId, (data) => {
+        await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, (data) => {
             console.log(data.input)
+            executeCommand(user, rewardId, data.input);
         }) 
     } catch (error) {
         console.log(error)
     }
 }
 
-async function doCommand() {}
+async function executeCommand(user : User, rewardID : string, input : string) {
+    const ip = user.server_ip;
+    const port = user.port;
+    const password = user.password;
+
+    const reward = await db.commands.findFirst({
+        where: {
+            reward_id: {equals: rewardID}
+        }
+    })
+    
+    if (port == null || ip == null || password == null) {
+        return chatClient.say(user.username, "Server needs to be configured first.", {});
+    }
+
+    status(ip, port, {timeout: 5000, enableSRV: true})
+    .then(async () => {
+        await mcClient.connect(ip, 25575);
+        await mcClient.login(user.password as string); // TODO: Use Bcrypt to store and decrypt passwords instead
+        await mcClient.run(reward?.command
+            .replace("/", "")
+            .replace("$user", `${input}`) as string);
+        mcClient.close();
+    })
+    .catch((err) => {return chatClient.say(user.username, "Server likely offline.")});
+}
 
 main();
 app.listen(3050)
