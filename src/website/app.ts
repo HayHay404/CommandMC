@@ -61,6 +61,7 @@ app.get("/", async(req, res) => {
                             data: {
                                 id: parseInt(data["id"]),
                                 username: data["login"],
+                                email: data["email"]
                             }
                         });    
                     }

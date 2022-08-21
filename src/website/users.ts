@@ -42,10 +42,10 @@ router.route("/:id")
 })
 .patch(async (req, res) => {
     try {
-        if (req.body.password) {
+        if (req.body.password !== "undefined") {
             const encryptedPassword = cryptr.encrypt(req.body.password)
 
-            const usr = await db.user.update({
+            await db.user.update({
                 where: {
                     id: parseInt(req.params.id),
                 },

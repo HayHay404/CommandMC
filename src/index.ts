@@ -26,6 +26,7 @@ import { db } from "./db";
 import { app } from "./website/app";
 import Cryptr from "cryptr";
 import { Commands, User } from "@prisma/client";
+import axios from "axios";
 
 let api: ApiClient;
 let listener: EventSubListener;
@@ -93,26 +94,44 @@ async function main() {
     })
 }
 
-// Message listeners
-() => {
+async function validateMCAccount(username : string, channel : string) {
+    try {
+        const data = await axios.get(`https://api.mojang.com/users/profiles/minecraft/${username}`)
+        if (!data.data["id"]) throw Error;
+    } catch (error) {
+        chatClient.say(channel, "Invalid minecraft account. Check the username.")
+        return false;
+    }
+
+    return true;
+}
+
+// Message listeners for linking Minecraft accounts
+function onMessage() {
 
     chatClient.onMessage(async(channel, user, message) => {
         if (message.startsWith("!link")) {
             const messageArr = message.split(" ");
+            if (messageArr.length !== 2) return chatClient.say(channel, `@${user}, remember to inclde your minecraft username.`)
+            if (!validateMCAccount(messageArr[1], channel)) return;
             const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
+            const username : string = messageArr[1];
 
             if (await db.mcUser.findFirst({where: {id: id}}) == undefined) {
                 try {
-                    db.mcUser.create({data: {
-                        id: user,
-                        mc_username: messageArr[1],
+                    await db.mcUser.create({data: {
+                        id: id,
+                        mc_username: username,
                     }});
+
+                    chatClient.say(channel, `✅ Successfully linked your minecraft account, @${user}`)
                 } catch (error) {
                     chatClient.say(channel, `Database error. Try again later, ${user}.`)
                 }
             } else {
                 try {
-                    db.mcUser.update({where: {id: id}, data: {mc_username: messageArr[1]}})
+                    await db.mcUser.update({where: {id: id}, data: {mc_username: username}})
+                    chatClient.say(channel, `✅ @${user} updated minecraft username successfully`)
                 } catch (error) {
                     chatClient.say(channel, `Database error. Try again later, ${user}.`)
                 }
@@ -158,6 +177,7 @@ async function createListener(user : User, rewardId : string) {
     try {
         await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, (data) => {
             // console.log(data.input)
+            console.log(data.userId)
             executeCommand(user, rewardId, data.userId);
         }) 
     } catch (error) {
@@ -202,6 +222,7 @@ async function executeCommand(user : User, rewardID : string, userId : string) {
     .catch((err) => {return chatClient.say(user.username, "❌ Server likely offline.")});
 }
 
-main();
+main()
+.then(() => onMessage())
 
 app.listen(3050)
