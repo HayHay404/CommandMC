@@ -1,6 +1,6 @@
 .env
 node_modules/
 tokens.json
-dist/tokens.json
+dist/
 prisma/migrations
 seed.psql
