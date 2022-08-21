@@ -9,7 +9,7 @@
   },
   "keywords": [],
   "author": "HayHay404",
-  "license": "ISC",
+  "license": "GPLv3",
   "dependencies": {
     "@prisma/client": "^4.2.1",
     "@twurple/api": "^5.2.1",
