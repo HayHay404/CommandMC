@@ -103,7 +103,7 @@ async function executeCommand(user, rewardID, input) {
         }
     });
     if (port == null || ip == null || password == null) {
-        return chatClient.say(user.username, "Server needs to be configured first.", {});
+        return chatClient.say(user.username, "❌ Server needs to be configured first.", {});
     }
     (0, minecraft_server_util_1.status)(ip, port, { timeout: 5000, enableSRV: true })
         .then(async () => {
@@ -111,10 +111,13 @@ async function executeCommand(user, rewardID, input) {
         await mcClient.login(user.password); // TODO: Use Bcrypt to store and decrypt passwords instead
         await mcClient.run(reward?.command
             .replace("/", "")
-            .replace("$user", `${input}`));
+            .replace("$user", `${input}`))
+            .then(() => {
+            return chatClient.say(user.username, "✅ Executed Successfully");
+        });
         mcClient.close();
     })
-        .catch((err) => { return chatClient.say(user.username, "Server likely offline."); });
+        .catch((err) => { return chatClient.say(user.username, "❌ Server likely offline."); });
 }
 main();
 app_1.app.listen(3050);

@@ -71,6 +71,44 @@ async function main() {
     })
 }
 
+// Message listeners
+() => {
+
+    chatClient.onMessage(async(channel, user, message) => {
+        if (message === "!link") {
+            const messageArr = message.split(" ");
+            const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
+
+            if (await db.mcUser.findFirst({where: {id: id}}) == undefined) {
+                try {
+                    db.mcUser.create({data: {
+                        id: user,
+                        mc_username: messageArr[1],
+                    }});
+                } catch (error) {
+                    chatClient.say(channel, `Database error. Try again later, ${user}.`)
+                }
+            } else {
+                try {
+                    db.mcUser.update({where: {id: id}, data: {mc_username: messageArr[1]}})
+                } catch (error) {
+                    chatClient.say(channel, `Database error. Try again later, ${user}.`)
+                }
+            }
+        }
+
+        if (message === "!unlink") {
+            const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
+
+            try {
+                db.mcUser.delete({where: {id: id}})
+            } catch (error) {
+                chatClient.say(channel, `Database error. Try again later, ${user}.`)
+            }
+        }
+    })
+}
+
 export async function createChanelPointReward(user : User, command: Commands) {
     try {
         try {
@@ -78,7 +116,7 @@ export async function createChanelPointReward(user : User, command: Commands) {
             await api.channelPoints.getCustomRewardById(user.id, command.reward_id as string)
         } catch (error) {
             const reward = await api.channelPoints.createCustomReward(user.id, 
-                {title: command.name, cost: command.cost | 1000, userInputRequired: true});
+                {title: command.name, cost: command.cost | 1000});
         
             const update = await db.commands.update({
                 where: { id: command.id },
@@ -89,8 +127,7 @@ export async function createChanelPointReward(user : User, command: Commands) {
         }
         
         return createListener(user, command.reward_id as string)
-    }
-    catch(error) {
+    } catch(error) {
         console.log(error)
     }
 }
@@ -118,7 +155,7 @@ async function executeCommand(user : User, rewardID : string, input : string) {
     })
     
     if (port == null || ip == null || password == null) {
-        return chatClient.say(user.username, "Server needs to be configured first.", {});
+        return chatClient.say(user.username, "❌ Server needs to be configured first.", {});
     }
 
     status(ip, port, {timeout: 5000, enableSRV: true})
@@ -127,11 +164,15 @@ async function executeCommand(user : User, rewardID : string, input : string) {
         await mcClient.login(user.password as string); // TODO: Use Bcrypt to store and decrypt passwords instead
         await mcClient.run(reward?.command
             .replace("/", "")
-            .replace("$user", `${input}`) as string);
+            .replace("$user", `${input}`) as string)
+        .then(() => {
+            return chatClient.say(user.username, "✅ Executed Successfully");
+        });
         mcClient.close();
     })
-    .catch((err) => {return chatClient.say(user.username, "Server likely offline.")});
+    .catch((err) => {return chatClient.say(user.username, "❌ Server likely offline.")});
 }
 
 main();
+
 app.listen(3050)
