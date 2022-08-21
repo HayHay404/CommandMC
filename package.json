@@ -7,6 +7,18 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cd dist && node index.js"
   },
+  "contributors": [
+    {
+      "email": "pixwl@pixwl.dev",
+      "name": "Pixwl",
+      "url": "https://pixwl.dev"
+    }
+  ],
+  "homepage": "https://commandmc.hayhay.link",
+  "repository": {
+    "url": "https://github.com/hayhay404/commandmc",
+    "type": "git"
+  },
   "keywords": [],
   "author": "HayHay404",
   "license": "GPLv3",
