@@ -2,6 +2,7 @@ import { User } from "@prisma/client";
 import { Router, Express } from "express";
 import { db } from "../db";
 import { createChanelPointReward } from "../index";
+import { cryptr } from "../index";
 
 export const router : Express = Router() as Express;
 
@@ -24,16 +25,20 @@ router.route("/:id")
 })
 .patch(async (req, res) => {
     try {
-        const usr = await db.user.update({
-            where: {
-                id: parseInt(req.params.id),
-            },
-            data: {
-                server_ip: req.body.server_ip,
-                port: parseInt(req.body.port),
-                password: req.body.password, 
-            }
-        })
+        if (req.body.password) {
+            const encryptedPassword = cryptr.encrypt(req.body.password)
+
+            const usr = await db.user.update({
+                where: {
+                    id: parseInt(req.params.id),
+                },
+                data: {
+                    server_ip: req.body.server_ip,
+                    port: parseInt(req.body.port),
+                    password: encryptedPassword, 
+                }
+            })
+        }
 
         return res.redirect(`/users/${parseInt(req.params.id)}`);
     } catch (error) {

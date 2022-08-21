@@ -1,5 +1,5 @@
 import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from "@twurple/auth";
-import { ApiClient, HelixCustomReward } from "@twurple/api";
+import { ApiClient } from "@twurple/api";
 import { ChatClient } from "@twurple/chat";
 import { EnvPortAdapter, EventSubListener } from '@twurple/eventsub';
 import dotenv from "dotenv";
@@ -7,13 +7,14 @@ import {promises as fs} from "fs";
 import { RCON, status } from "minecraft-server-util";
 import { db } from "./db";
 import { app } from "./website/app";
+import Cryptr from "cryptr";
 import { Commands, User } from "@prisma/client";
 
 let api: ApiClient;
 let listener: EventSubListener;
 let chatClient : ChatClient;
 
-// .env should contain: CLIENT_ID, CLIENT_SECRET, PORT, SECRET
+// .env should contain: CLIENT_ID, CLIENT_SECRET, PORT, SECRET, DATABASE_URL, HOSTNAME
 dotenv.config({path: "../.env"});
 
 const clientId = process.env["CLIENT_ID"] as string;
@@ -22,8 +23,12 @@ const clientSecret = process.env["CLIENT_SECRET"] as string;
 // Minecraft Client
 const mcClient = new RCON();
 
+// Cryptr used to encrypt/decrypt passwords for servers.
+export const cryptr = new Cryptr(process.env["SECRET"] as string);
+
 // Create an auto refreshing token 
 // File tokens.json should hold {accessToken, refreshToken, expiresIn, obtainmentTimestamp}
+// See: https://twurple.js.org/docs/auth/providers/refreshing.html 
 async function getAuthProvider() {
     const tokenData = JSON.parse(await fs.readFile("../tokens.json", "utf-8"));
     const authProvider = new RefreshingAuthProvider({
@@ -162,7 +167,7 @@ async function executeCommand(user : User, rewardID : string, userId : string) {
     status(ip, port, {timeout: 5000, enableSRV: true})
     .then(async () => {
         await mcClient.connect(ip, rconPort);
-        await mcClient.login(user.password as string); // TODO: Use Bcrypt to store and decrypt passwords instead
+        await mcClient.login(cryptr.decrypt(user.password as string));
         reward?.command.replace("/", "")
         if (reward?.command.includes("$user")) {
             try {
