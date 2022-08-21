@@ -75,7 +75,7 @@ async function main() {
 () => {
 
     chatClient.onMessage(async(channel, user, message) => {
-        if (message === "!link") {
+        if (message.startsWith("!link")) {
             const messageArr = message.split(" ");
             const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
 
@@ -97,7 +97,7 @@ async function main() {
             }
         }
 
-        if (message === "!unlink") {
+        if (message.startsWith("!unlink")) {
             const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
 
             try {
@@ -135,18 +135,19 @@ export async function createChanelPointReward(user : User, command: Commands) {
 async function createListener(user : User, rewardId : string) {
     try {
         await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, (data) => {
-            console.log(data.input)
-            executeCommand(user, rewardId, data.input);
+            // console.log(data.input)
+            executeCommand(user, rewardId, data.userId);
         }) 
     } catch (error) {
         console.log(error)
     }
 }
 
-async function executeCommand(user : User, rewardID : string, input : string) {
+async function executeCommand(user : User, rewardID : string, userId : string) {
     const ip = user.server_ip;
     const port = user.port;
     const password = user.password;
+    const rconPort = user.rcon_port;
 
     const reward = await db.commands.findFirst({
         where: {
@@ -154,20 +155,26 @@ async function executeCommand(user : User, rewardID : string, input : string) {
         }
     })
     
-    if (port == null || ip == null || password == null) {
-        return chatClient.say(user.username, "❌ Server needs to be configured first.", {});
+    if (port == null || ip == null || password == null || rconPort == null) {
+        return chatClient.say(user.username, "❌ Server needs to be configured first.");
     }
 
     status(ip, port, {timeout: 5000, enableSRV: true})
     .then(async () => {
-        await mcClient.connect(ip, 25575);
+        await mcClient.connect(ip, rconPort);
         await mcClient.login(user.password as string); // TODO: Use Bcrypt to store and decrypt passwords instead
-        await mcClient.run(reward?.command
-            .replace("/", "")
-            .replace("$user", `${input}`) as string)
-        .then(() => {
-            return chatClient.say(user.username, "✅ Executed Successfully");
-        });
+        reward?.command.replace("/", "")
+        if (reward?.command.includes("$user")) {
+            try {
+                const mcUsername = await db.mcUser.findFirstOrThrow({where: {id: userId}})
+                await mcClient.run(reward?.command
+                    .replace("$user", `${mcUsername}`) as string)
+            } catch (error) {
+                chatClient.say(user.username, "Link your minecraft account first with !link <username>")
+            }
+        }
+        
+        chatClient.say(user.username, "✅ Executed Successfully");
         mcClient.close();
     })
     .catch((err) => {return chatClient.say(user.username, "❌ Server likely offline.")});

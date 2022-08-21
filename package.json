@@ -8,7 +8,7 @@
     "start": "cd dist && node index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "HayHay404",
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^4.2.1",
