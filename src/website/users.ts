@@ -18,7 +18,7 @@
 import { User } from "@prisma/client";
 import { Router, Express } from "express";
 import { db } from "../db";
-import { createChanelPointReward } from "../index";
+import { createChanelPointReward } from "../twitch/createRewards";
 import { cryptr } from "../index";
 
 export const router : Express = Router() as Express;
@@ -69,9 +69,15 @@ router.route("/:userId/rewards/")
     return res.render("pages/newCommand")
 })
 .post(async (req, res) => {
-    const data = await req.body;
     const user = await db.user.findFirst({where: {id: {equals: parseInt(req.params.userId)}}});
     const userId = user?.id;
+    if (user?.role === "DEFAULT") {
+        if ((await db.commands.findMany({where: {userId: userId}})).length === 5) {
+            return res.redirect(`/users/${user?.id}`);
+        }
+    }
+
+    const data = await req.body;    
     await db.commands.create({data: {
         name: data.name,
         cost: parseInt(data.cost),
