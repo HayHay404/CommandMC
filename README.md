@@ -1,4 +1,7 @@
 # CommandMC
+![GitHub package.json version](https://img.shields.io/github/package-json/v/hayhay404/commandmc?style=for-the-badge)
+![Snyk Vulnerabilities for GitHub Repo](https://img.shields.io/snyk/vulnerabilities/github/hayhay404/commandmc?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/hayhay404/commandmc?style=for-the-badge)
 Twitch bot to send commands via RCON to a Minecraft server from Twitch channel point redemptions.
 
 ## Details
