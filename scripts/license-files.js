@@ -67,6 +67,8 @@ glob(`**/*.{ts,tsx,ejs,html}`, {}, (error, files) => {
     return;
   }
 
+  const updatedFiles = []
+
   files.forEach((filePath) => {
     if (filePath.startsWith("node_modules")) return;
 
@@ -95,6 +97,11 @@ glob(`**/*.{ts,tsx,ejs,html}`, {}, (error, files) => {
     if (LICENSE !== "" && !fileContent.includes(LICENSE)) {
       fs.writeFileSync(filePath, LICENSE + "\n\n" + fileContent, "utf-8");
       console.log(`Updating ${filePath}`);
+      updatedFiles.push(filePath)
     }
   });
+
+  if (updatedFiles.length > 0) {
+    console.log(`\nWARNING: It is recommended to add files listed above to git.`)
+  }
 });
