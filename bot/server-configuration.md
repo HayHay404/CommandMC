@@ -43,7 +43,27 @@ Let's start by editing `server.properties`. Open the file and find `enabled-rcon
 
 Find `rcon.port=` and change it to the port that you created earlier in the guide.
 
+<details>
+
+<summary>Opening a port</summary>
+
+If you're using a server host for your Minecraft server, be sure to check their documentation and panel on how to open a new port. While changing the default `25575` is not necessary, it's recommended to change it.
+
+
+
+Here are some popular server hosts' guide on opening a port:
+
+* [PebbleHost](https://help.pebblehost.com/en/minecraft/how-to-add-an-additional-port)
+* [DedicatedMC](https://docs.dedicatedmc.io/advanced-server-setup/how-to-add-additional-ports/)
+* [Sparked Host](https://www.youtube.com/watch?v=Edb9DKM0lqI)
+
+</details>
+
 Next, find `rcon.password=` and change it to the password that you created earlier.
+
+{% hint style="danger" %}
+Please **do not** share your `rcon.password`with anyone. This will allow them to execute any command on your server. See the [FAQ](server-configuration.md#faq) for more info.
+{% endhint %}
 
 
 
