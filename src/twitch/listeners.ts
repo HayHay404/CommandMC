@@ -17,7 +17,7 @@
  */
 
 import { User } from "@prisma/client";
-import { api, listener } from "../index";
+import { listener } from "../index";
 import { executeCommand } from "../mcSide";
 
 export async function createListener(user : User, rewardId : string) {
@@ -26,9 +26,11 @@ export async function createListener(user : User, rewardId : string) {
             
             await executeCommand(user, rewardId, data.userId).then(async (value) => {
                 if (value == true) {
-                    // await data.updateStatus("FULFILLED"); TODO: Causing issues for now. Fix later. Low priority.
+                    await data.updateStatus("FULFILLED"); // TODO: Causing issues for now. Fix later. Low priority.
+                    console.log(data.status)
                 } else {
-                    // await data.updateStatus("CANCELED");
+                    await data.updateStatus("CANCELED");
+                    console.log(data.status)
                 }
             })
             

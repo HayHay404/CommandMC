@@ -31,9 +31,9 @@ import Cryptr from "cryptr";
 import { createChanelPointReward } from "./twitch/createRewards";
 import { chatCommands } from "./twitch/chatCommands";
 
-export let api: ApiClient;
 export let listener: EventSubListener;
 export let chatClient: ChatClient;
+export let apiClient : ApiClient;
 
 // .env should contain: CLIENT_ID, CLIENT_SECRET, PORT, SECRET, DATABASE_URL, HOSTNAME
 dotenv.config({ path: "../.env" });
@@ -70,9 +70,10 @@ async function main() {
   // Create an App Access Token necessary for Event Sub
   const appTokenAuthProvider = new ClientCredentialsAuthProvider(
     clientId,
-    clientSecret
+    clientSecret,
+    ["channel:manage:redemptions", "channel:read:redemptions", "user:read:email", "chat:read", "chat:edit"]
   );
-  const apiClient = new ApiClient({ authProvider: appTokenAuthProvider });
+  apiClient = new ApiClient({ authProvider: appTokenAuthProvider });
 
   /* Create adapter and web server for bot to listen on
    * adapter provides the webserver domain and SSL, however SSL is obtained with a reverse proxy
@@ -87,7 +88,7 @@ async function main() {
     secret,
     strictHostCheck: false,
   });
-  await listener.listen().then(() => listener.removeListener());
+  await listener.listen();
 
   const authProvider = await getAuthProvider();
 
@@ -97,10 +98,6 @@ async function main() {
     channels: ["HayHayIsLive"],
   });
   await chatClient.connect();
-
-  // Creates new ApiClient to create channel point redemptions.
-  // Required scopes: channel:manage:redemptions
-  api = new ApiClient({ authProvider });
 
   // Gets all users and for each users loops through commands to create custom rewards + add listener.
   await db.user.findMany({ include: { commands: true } }).then((userList) => {

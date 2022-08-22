@@ -17,7 +17,7 @@
  */
 
 import { db } from "../db";
-import { chatClient, api } from "../index";
+import { chatClient, apiClient } from "../index";
 import { validateMCAccount } from "../mcSide";
 
 // Message listeners for linking Minecraft accounts
@@ -28,7 +28,7 @@ export function chatCommands() {
             const messageArr = message.split(" ");
             if (messageArr.length !== 2) return chatClient.say(channel, `@${user}, remember to inclde your minecraft username.`)
             if (!validateMCAccount(messageArr[1], channel)) return;
-            const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
+            const id : string = await apiClient.users.getUserByName(user).then((user) => {return user?.id as string});
             const username : string = messageArr[1];
 
             if (await db.mcUser.findFirst({where: {id: id}}) == undefined) {
@@ -53,7 +53,7 @@ export function chatCommands() {
         }
 
         if (message.startsWith("!unlink")) {
-            const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
+            const id : string = await apiClient.users.getUserByName(user).then((user) => {return user?.id as string});
 
             try {
                 await db.mcUser.delete({where: {id: id}});

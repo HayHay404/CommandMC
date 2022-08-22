@@ -32,6 +32,7 @@ app.set('views', path.join(".." + "/views"));
 app.get("/", async(req, res) => {
     if (req.url.includes("code")) {
         const code = req.url.split("=")[1].replace("&scope", "")
+        let token : string;
         //console.log(code)
         try {
             await axios.post(`https://id.twitch.tv/oauth2/token`, {
@@ -41,7 +42,7 @@ app.get("/", async(req, res) => {
                 redirect_uri: "http://localhost:3050",
                 grant_type: "authorization_code"
             }).then(async (response) => {
-                const token = response.data["access_token"];
+                token = await response.data["access_token"];
 
                 await axios.get("https://api.twitch.tv/helix/users", {
                     headers: {
@@ -52,7 +53,6 @@ app.get("/", async(req, res) => {
 
                     const data = response.data["data"][0];
                     const id = parseInt(data["id"]);
-
                     const user = await db.user.findFirst({where: {
                         id: {equals: id}
                     }})
@@ -62,9 +62,19 @@ app.get("/", async(req, res) => {
                             data: {
                                 id: parseInt(data["id"]),
                                 username: data["login"],
-                                email: data["email"]
+                                email: data["email"],
+                                authorization: `Bearer ${token}`
                             }
                         });    
+                    } else {
+                        await db.user.update({
+                            data: {
+                                authorization: `Bearer ${token}`
+                            },
+                            where: {
+                                id: id
+                            }
+                        })
                     }
                     
                     return res.redirect(`/users/${id}`)
