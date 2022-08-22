@@ -8,7 +8,7 @@
     "start": "cd dist && node index.js",
     "prepare": "husky install",
     "pre-commit": "npm run format && node scripts/license-files.js",
-    "format": "echo \"Error: no formatter setup\" && exit 1"
+    "format": "echo \"Error: no formatter setup\""
   },
   "contributors": [
     {
