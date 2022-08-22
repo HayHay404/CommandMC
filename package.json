@@ -39,5 +39,10 @@
   "devDependencies": {
     "@types/cryptr": "^4.0.1",
     "@types/express": "^4.17.13"
+  },
+  "engines": {
+    "node": ">=14",
+    "npm": ">=7.4",
+    "yarn": "please-use-npm"
   }
 }
