@@ -1,26 +1,30 @@
-/**
-  CommandMC - Execute command on a Minecraft server with Twitch channel redemptions.
-  Copyright (C) 2022  HayHay404 <hayhayisaloser01@gmail.com>
+/*
+ * CommandMC - Execute command on a Minecraft server with Twitch channel redemptions.
+ * Copyright (C) 2022  HayHay404 <hayhayisaloser01@gmail.com>
 
-  This program is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License
-  along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/
-import { ClientCredentialsAuthProvider, RefreshingAuthProvider } from "@twurple/auth";
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import {
+  ClientCredentialsAuthProvider,
+  RefreshingAuthProvider,
+} from "@twurple/auth";
 import { ApiClient } from "@twurple/api";
 import { ChatClient } from "@twurple/chat";
-import { EnvPortAdapter, EventSubListener } from '@twurple/eventsub';
+import { EnvPortAdapter, EventSubListener } from "@twurple/eventsub";
 import dotenv from "dotenv";
-import {promises as fs} from "fs";
+import { promises as fs } from "fs";
 import { db } from "./db";
 import { app } from "./website/app";
 import Cryptr from "cryptr";
@@ -29,10 +33,10 @@ import { chatCommands } from "./twitch/chatCommands";
 
 export let api: ApiClient;
 export let listener: EventSubListener;
-export let chatClient : ChatClient;
+export let chatClient: ChatClient;
 
 // .env should contain: CLIENT_ID, CLIENT_SECRET, PORT, SECRET, DATABASE_URL, HOSTNAME
-dotenv.config({path: "../.env"});
+dotenv.config({ path: "../.env" });
 
 const clientId = process.env["CLIENT_ID"] as string;
 const clientSecret = process.env["CLIENT_SECRET"] as string;
@@ -40,59 +44,76 @@ const clientSecret = process.env["CLIENT_SECRET"] as string;
 // Cryptr used to encrypt/decrypt passwords for servers.
 export const cryptr = new Cryptr(process.env["SECRET"] as string);
 
-// Create an auto refreshing token 
+// Create an auto refreshing token
 // File tokens.json should hold {accessToken, refreshToken, expiresIn, obtainmentTimestamp}
-// See: https://twurple.js.org/docs/auth/providers/refreshing.html 
+// See: https://twurple.js.org/docs/auth/providers/refreshing.html
 async function getAuthProvider() {
-    const tokenData = JSON.parse(await fs.readFile("../tokens.json", "utf-8"));
-    const authProvider = new RefreshingAuthProvider({
-            clientId,
-            clientSecret,
-            onRefresh: async newTokenData => await fs.writeFile('./tokens.json', JSON.stringify(newTokenData, null, 4), "utf-8")
-        },
-        tokenData
-    );
+  const tokenData = JSON.parse(await fs.readFile("../tokens.json", "utf-8"));
+  const authProvider = new RefreshingAuthProvider(
+    {
+      clientId,
+      clientSecret,
+      onRefresh: async (newTokenData) =>
+        await fs.writeFile(
+          "./tokens.json",
+          JSON.stringify(newTokenData, null, 4),
+          "utf-8"
+        ),
+    },
+    tokenData
+  );
 
-    return authProvider;
+  return authProvider;
 }
 
 async function main() {
-    // Create an App Access Token necessary for Event Sub
-    const appTokenAuthProvider = new ClientCredentialsAuthProvider(clientId, clientSecret);
-    const apiClient = new ApiClient({authProvider: appTokenAuthProvider});
+  // Create an App Access Token necessary for Event Sub
+  const appTokenAuthProvider = new ClientCredentialsAuthProvider(
+    clientId,
+    clientSecret
+  );
+  const apiClient = new ApiClient({ authProvider: appTokenAuthProvider });
 
-    /* Create adapter and web server for bot to listen on
-    * adapter provides the webserver domain and SSL, however SSL is obtained with a reverse proxy
-    */
-    const adapter = new EnvPortAdapter({hostName: process.env["HOSTNAME"] as string});
-    const secret = process.env["SECRET"] as string;
-    listener = new EventSubListener({ apiClient, adapter, secret, strictHostCheck: false });
-    await listener.listen().then(() => listener.removeListener());
+  /* Create adapter and web server for bot to listen on
+   * adapter provides the webserver domain and SSL, however SSL is obtained with a reverse proxy
+   */
+  const adapter = new EnvPortAdapter({
+    hostName: process.env["HOSTNAME"] as string,
+  });
+  const secret = process.env["SECRET"] as string;
+  listener = new EventSubListener({
+    apiClient,
+    adapter,
+    secret,
+    strictHostCheck: false,
+  });
+  await listener.listen().then(() => listener.removeListener());
 
-    const authProvider = await getAuthProvider()
+  const authProvider = await getAuthProvider();
 
-    // Creates chatClient to respond to users.
-    chatClient = new ChatClient({ authProvider: authProvider, channels: ['HayHayIsLive'] });
-    await chatClient.connect();
+  // Creates chatClient to respond to users.
+  chatClient = new ChatClient({
+    authProvider: authProvider,
+    channels: ["HayHayIsLive"],
+  });
+  await chatClient.connect();
 
-    // Creates new ApiClient to create channel point redemptions.
-    // Required scopes: channel:manage:redemptions
-    api = new ApiClient({authProvider})
+  // Creates new ApiClient to create channel point redemptions.
+  // Required scopes: channel:manage:redemptions
+  api = new ApiClient({ authProvider });
 
-    // Gets all users and for each users loops through commands to create custom rewards + add listener.
-    await db.user.findMany({include: {commands: true}}).then((userList) => {
-        userList.forEach(async (usr) => {
-
-            usr.commands.forEach(async (command) => {
-                await createChanelPointReward(usr, command)
-            })
-        });
-    })
+  // Gets all users and for each users loops through commands to create custom rewards + add listener.
+  await db.user.findMany({ include: { commands: true } }).then((userList) => {
+    userList.forEach(async (usr) => {
+      usr.commands.forEach(async (command) => {
+        await createChanelPointReward(usr, command);
+      });
+    });
+  });
 }
 
 // Execute main, then listen for chat commands. Ensures the chatClient has been properly initalized.
-main()
-.then(() => chatCommands())
+main().then(() => chatCommands());
 
 // Web server port.
-app.listen(3050)
+app.listen(3050);
