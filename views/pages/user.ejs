@@ -35,6 +35,8 @@
             <input class="input input-bordered w-full m-2" type="text" name="server-ip" id="server-ip" required value=" <%- user.server_ip %>">
             <label for="port" class="label label-text">Server port</label>
             <input class="input input-bordered w-full m-2" type="number" name="port" id="port" required value="<%- user.port %>">
+            <label for="rcon-port" class="label label-text">RCON port</label>
+            <input class="input input-bordered w-full m-2" type="number" name="rcon-port" id="rcon-port" required value="<%- user.rcon_port %>">
             <label for="server-password" class="label label-text">Server password</label>
             <input class="input input-bordered w-full m-2" type="password" name="server-password" id="server-password" required>
 
@@ -42,7 +44,7 @@
         </form>
     </div>
 
-    <div id="commands" class="grid flex place-items-center">
+    <div class="place-items-center grid m-4">
         <div class="card w-64 bg-primary text-primary-content">
             <div class="card-body">
               <h2 class="card-title">Create a new redemption reward here</h2>
@@ -51,16 +53,18 @@
                 <a href="/users/<%=user.id%>/rewards/"><button class="btn">Create</button></a>
               </div>
             </div>
-        </div>   
-        
+        </div>  
+    </div>
+
+    <div id="commands" class="flex flex-wrap justify-center">    
         <% user.commands.forEach(element => { %>
-            <div class="card w-64 bg-primary text-primary-content">
+            <div class="card w-64 bg-primary text-primary-content m-4">
                 <div class="card-body">
-                  <h2 class="card-title"><%= element.name %> || <%= element.cost %> </h2>
-                  <p><%= element.command %></p>
-                  <div class="card-actions justify-end">
+                    <h2 class="card-title"><%= element.name %> || <%= element.cost %> </h2>
+                    <p><%= element.command %></p>
+                    <div class="card-actions justify-end">
                     <a href="/"><button class="btn">Delete</button></a>
-                  </div>
+                    </div>
                 </div>
             </div>   
         <% }) %>

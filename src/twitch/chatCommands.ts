@@ -38,10 +38,13 @@ export function chatCommands() {
             const id : string = await api.users.getUserByName(user).then((user) => {return user?.id as string});
 
             try {
-                db.mcUser.delete({where: {id: id}})
+                await db.mcUser.delete({where: {id: id}});
+                chatClient.say(channel, `Successfully unlinked your account, @${user}`)
             } catch (error) {
-                chatClient.say(channel, `Database error. Try again later, ${user}.`)
+                chatClient.say(channel, `Database error. Try again later, @${user}.`)
             }
         }
+
+        if (message.startsWith("!docs")) return chatClient.say(channel, "CommandMC Documentation: https://docs.commandmc.hayhay.link")
     })
 }
