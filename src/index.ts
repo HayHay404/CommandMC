@@ -88,6 +88,7 @@ async function main() {
     secret,
     strictHostCheck: false,
   });
+  //await apiClient.eventSub.deleteAllSubscriptions();
   await listener.listen();
 
   const authProvider = await getAuthProvider();

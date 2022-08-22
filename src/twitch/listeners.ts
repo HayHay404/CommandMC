@@ -23,15 +23,18 @@ import { executeCommand } from "../mcSide";
 export async function createListener(user : User, rewardId : string) {
     try {
         await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, async (data) => {
-            
+
             await executeCommand(user, rewardId, data.userId).then(async (value) => {
+                // TODO: Causing issues for now. Fix later. Low priority.
+                /*
                 if (value == true) {
-                    await data.updateStatus("FULFILLED"); // TODO: Causing issues for now. Fix later. Low priority.
+                    //await data.updateStatus("FULFILLED"); 
                     console.log(data.status)
                 } else {
-                    await data.updateStatus("CANCELED");
+                    //await data.updateStatus("CANCELED");
                     console.log(data.status)
                 }
+                */
             })
             
         }) 
