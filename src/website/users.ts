@@ -20,32 +20,45 @@ import { User } from "@prisma/client";
 import { Router, Express } from "express";
 import { db } from "../db";
 import { createChanelPointReward } from "../twitch/createRewards";
-import { cryptr } from "../index";
+import { apiClient, cryptr } from "../index";
+import axios from "axios";
 
 export const router: Express = Router() as Express;
+
+let headers : {};
+let user : User;
+
+
+router.use(async (req, res, next) => {
+  try {
+    const reqUrl = req.url.split("/");
+    user = await db.user.findFirstOrThrow({
+      where: {
+        id: parseInt(reqUrl[1])
+      },
+      include: {commands: true}
+    });
+
+    headers = { 
+      "Client-Id": process.env["CLIENT_ID"] as string,
+      "Authorization": user?.authorization as string,
+      'Content-Type': 'application/json'
+    }
+    return next();
+  } catch (error) {
+    return res
+    .status(404)
+    .send(
+      "User not found." +
+        "<script>setTimeout(function() {window.location = '/';}, 5000)</script>"
+    );
+  }
+});
 
 router
   .route("/:id")
   .get(async (req, res) => {
-    try {
-      const user = await db.user.findFirstOrThrow({
-        where: {
-          id: {
-            equals: parseInt(req.params.id),
-          },
-        },
-        include: { commands: true },
-      });
-
       return res.render("pages/user", { user });
-    } catch (error) {
-      return res
-        .status(404)
-        .send(
-          "User not found." +
-            "<script>setTimeout(function() {window.location = '/';}, 5000)</script>"
-        );
-    }
   })
   .patch(async (req, res) => {
     try {
@@ -89,23 +102,49 @@ router
       if (
         (await db.commands.findMany({ where: { userId: userId } })).length === 5
       ) {
-        return res.redirect(`/users/${user?.id}`);
+        return res.redirect(`/users/${userId}`);
       }
     }
 
-    const data = await req.body;
-    await db.commands
-      .create({
-        data: {
-          name: data.name,
-          cost: parseInt(data.cost),
-          command: data.command,
-          userId: userId as number,
-        },
+    try {
+
+      let rewards = await axios.get("https://api.twitch.tv/helix/channel_points/custom_rewards", {
+          headers: headers,
+          params: {
+              "broadcaster_id": userId
+          }
       })
-      .then(
-        async (reward) => await createChanelPointReward(user as User, reward)
-      );
+
+      const rewardsArr = await rewards.data["data"]
+      const data = await req.body;
+
+      rewardsArr.forEach((value: { title: string; }) => {
+        //console.log(value)
+        if (data.name === value["title"]) {
+          throw new Error("Reward Title already exists.");
+        }
+      });
+
+      try {
+        await db.commands
+        .create({
+          data: {
+            name: data.name,
+            cost: parseInt(data.cost),
+            command: data.command,
+            userId: userId as number,
+          },
+        })
+        .then(
+            async (reward) => await createChanelPointReward(user as User, reward)
+        );
+      } catch (error) {
+        console.log("database error")
+      }
+      
+    } catch (error) {
+      console.log(error)
+    }
 
     return res.redirect(`/users/${user?.id}`);
   });
@@ -129,4 +168,23 @@ router
     }
   })
   .patch(async (req, res) => {})
-  .delete(async (req, res) => {});
+  .delete(async (req, res) => {
+    const reward = await db.commands.findFirst({where: {reward_id: {equals: req.params.rewardId}}})
+    try {
+      await axios.delete("https://api.twitch.tv/helix/channel_points/custom_rewards", {
+        headers: headers,
+        params: {
+          "broadcaster_id": parseInt(req.params.userId),
+          "reward_id": reward?.reward_id
+        }
+      })
+      await db.commands.delete({
+        where: {
+          id: parseInt(req.params.rewardId),
+        },
+      });
+    } catch (error) {
+      return res.redirect("/users/" + req.params.userId);
+    }
+    return res.redirect(`/users/${req.params.userId}`);
+  });

@@ -89,4 +89,3 @@ app.get("/", async(req, res) => {
 
 
 app.use("/users", userRoutes);
-//app.use("/users/:userId/rewards/", rewardRoutes);
