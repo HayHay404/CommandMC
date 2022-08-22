@@ -5,8 +5,8 @@
 ## Twitch Bot <a href="#bot" id="bot"></a>
 
 * [Invite the bot](bot/invite-the-bot.md)
-* [Edit Server Config](bot/edit-server-config.md)
-* [Edit Bot Config](bot/edit-bot-config.md)
+* [Server Configuration](bot/server-configuration.md)
+* [Bot Configuration](bot/bot-configuration.md)
 
 ## Custom Commands <a href="#commands" id="commands"></a>
 
