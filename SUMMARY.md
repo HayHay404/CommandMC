@@ -19,3 +19,4 @@
 
 * [Minecraft Username and Twitch Account](user/minecraft-username-and-twitch-account/README.md)
   * [Linking, Updating & Unlinking](user/minecraft-username-and-twitch-account/linking-updating-and-unlinking.md)
+  * [Misc Commands](user/minecraft-username-and-twitch-account/misc-commands.md)
