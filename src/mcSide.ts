@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { User } from "@prisma/client";
+import { Commands, User } from "@prisma/client";
 import axios from "axios";
 import { db } from "./db";
 import { chatClient, cryptr } from "./index";
@@ -38,7 +38,7 @@ export async function validateMCAccount(username : string, channel : string) : P
     return true;
 }
 
-export async function executeCommand(user : User, rewardID : string, userRedeemId : string, isSubEnd = false) : Promise<Boolean> {
+export async function executeCommand(user : User, reward : Commands, userRedeemId : string, isSubEnd = false) : Promise<Boolean> {
     const ip = user.server_ip;
     const port = user.port;
     const password = user.password;
@@ -48,12 +48,6 @@ export async function executeCommand(user : User, rewardID : string, userRedeemI
         chatClient.say(user.username, "❌ Server needs to be configured first.");
         return false;
     }
-
-    const reward = await db.commands.findFirst({
-        where: {
-            reward_id: {equals: rewardID}
-        }
-    })
 
     const command = isSubEnd ? reward?.subscription_end as string : reward?.command as string;
 
