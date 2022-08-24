@@ -49,6 +49,7 @@ model Commands {
   is_bits         Boolean @default(false)
   is_reward       Boolean @default(true)
   bits            Int     @default(0)
+  subscription_end String?
 }
 
 model mcUser {

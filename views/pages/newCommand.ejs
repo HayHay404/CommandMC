@@ -30,19 +30,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <h1 class="text-5xl">Create new reward</h1>
 
         <form class="form form-control w-full max-w-md" method="post">
+
             <label for="name" class="label label-text">Reward name</label>
             <input class="input input-bordered w-full m-2" type="text" name="name" id="name" required placeholder="Whitelist">
-            <label for="cost" class="label label-text">Cost</label>
-            <input class="input input-bordered w-full m-2" type="number" name="cost" id="cost" required placeholder="1000">
+
             <label for="command" class="label label-text">Server Command</label>
             <input class="input input-bordered w-full m-2" type="text" name="command" id="command" required placeholder="whitelist add $user">
+
+            <label class="label cursor-pointer">
+                <span for="cost" class="label-text">Cost</span>
+                <input class="toggle toggle-primary" type="checkbox" name="isChannelPoint" id="isChannelPoint" checked>  
+            </label>
+            <input class="input input-bordered w-full m-2" type="number" name="cost" id="cost" placeholder="1000">
+
             <label class="label cursor-pointer">
                 <span for="isSubscription" class="label-text">Subscription</span>
                 <input class="toggle toggle-primary" type="checkbox" name="isSubscription" id="isSubscription">    
             </label>
+            <input type="text" class="input input-bordered w-full m-2" name="subscriptionEnd" id="subscriptionEnd" disabled placeholder="Command to run on subscription end">
+
             <label class="label cursor-pointer">
                 <label for="isBits" class="label-text">Bits</label>
-                <input class="toggle toggle-primary" type="checkbox" name="isBits" id="isBits">
+                <input class="toggle toggle-primary" type="checkbox" name="isBits" id="isBits" disabled>
             </label>
             <input type="number" name="bits" id="bits" class="input input-bordered w-full m-2" disabled>
 
@@ -54,13 +63,39 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 <script>
     const bitsField = document.querySelector("#bits");
-    const bitsToggle = document.querySelector("#isBits")
+    const bitsToggle = document.querySelector("#isBits");
+    const costField = document.querySelector("#cost");
+    const costToggle = document.querySelector("#isChannelPoint");
+    const subField = document.querySelector("#subscriptionEnd");
+    const subToggle = document.querySelector("#isSubscription");
 
-    bitsToggle.addEventListener("click", (e) => {
-        if (bitsToggle.checked) {
-            bitsField.disabled = false
+    subToggle.addEventListener("click", () => {
+        if (subToggle.checked) {
+            subField.required = true;
+            subField.disabled = false;
         } else {
-            bitsField.disabled = true
+            subField.required = false;
+            subField.disabled = true;
+        }
+    })
+
+    costToggle.addEventListener("click", () => {
+        if (costToggle.checked) {
+            costField.required = true;
+            costField.disabled = false;
+        } else {
+            costField.required = false;
+            costField.disabled = true;
+        }
+    })
+
+    bitsToggle.addEventListener("click", () => {
+        if (bitsToggle.checked) {
+            bitsField.required = true;
+            bitsField.disabled = false;
+        } else {
+            bitsField.required = false;
+            bitsField.disabled = true;
         }
     })
 </script>

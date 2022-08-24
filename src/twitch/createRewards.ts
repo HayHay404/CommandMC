@@ -57,17 +57,17 @@ export async function createChanelPointReward(user : User, command: Commands) {
 
             const reward = await rewardData.data["data"][0];
         
-            await db.commands.update({
+            command = await db.commands.update({
                 where: { id: command.id },
                 data: {
                     reward_id: reward["id"],
                 }
             })
         } finally {
-            createListener(user, command.reward_id as string)
+            createListener(user, command)
             return;
         }
     } catch(error) {
-        // console.log(error)
+        throw new Error("Database error: " + error);
     }
 }

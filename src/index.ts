@@ -106,7 +106,7 @@ async function main() {
     userList.forEach(async (user) => {
       user.commands.forEach(async (command) => {
         if (command.reward_id == null) return;
-        await createListener(user, command.reward_id as string)
+        await createListener(user, command)
       });
     });
   });

@@ -11,8 +11,8 @@ CommandMC is a Twitch bot that allows for users to redeem custom rewards, and au
 # Todo:
 - [x] Migrate reward creation from on startup to on login
 - [ ] Create edit page & functionality for rewards
-- [ ] Expand creation of rewards
-- [ ] Add listeners for subscription events/end subscription events
+- [x] Expand creation of rewards
+- [x] Add listeners for subscription events/end subscription events
 - [ ] Update all URLs to final values
 - [ ] Finish documentation
 - [ ] TESTS. WRITE. TESTS.

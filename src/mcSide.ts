@@ -38,36 +38,40 @@ export async function validateMCAccount(username : string, channel : string) : P
     return true;
 }
 
-export async function executeCommand(user : User, rewardID : string, userId : string) : Promise<Boolean> {
+export async function executeCommand(user : User, rewardID : string, userRedeemId : string, isSubEnd = false) : Promise<Boolean> {
     const ip = user.server_ip;
     const port = user.port;
     const password = user.password;
     const rconPort = user.rcon_port;
+
+    if (port == null || ip == null || password == null || rconPort == null) {
+        chatClient.say(user.username, "❌ Server needs to be configured first.");
+        return false;
+    }
 
     const reward = await db.commands.findFirst({
         where: {
             reward_id: {equals: rewardID}
         }
     })
-    
-    if (port == null || ip == null || password == null || rconPort == null) {
-        chatClient.say(user.username, "❌ Server needs to be configured first.");
-        return false;
-    }
+
+    const command = isSubEnd ? reward?.subscription_end as string : reward?.command as string;
 
     status(ip, port, {timeout: 5000, enableSRV: true})
     .then(async () => {
         await mcClient.connect(ip, rconPort);
         await mcClient.login(cryptr.decrypt(user.password as string));
-        reward?.command.replace("/", "")
-        if (reward?.command.includes("$user")) {
+        command.replace("/", "")
+        if (command.includes("$user")) {
             try {
-                const mcUsername = await db.mcUser.findFirstOrThrow({where: {id: userId}})
-                await mcClient.run(reward?.command
-                    .replace("$user", `${mcUsername}`) as string)
+                const mcUsername = await db.mcUser.findFirstOrThrow({where: {id: userRedeemId}})
+                await mcClient.run(command
+                    .replace("$user", `${mcUsername.mc_username}`) as string)
             } catch (error) {
                 chatClient.say(user.username, "Link your minecraft account first with !link <username>")
             }
+        } else {
+            await mcClient.run(command)
         }
         
         chatClient.say(user.username, "✅ Executed Successfully");

@@ -101,6 +101,21 @@ router
     return res.render("pages/newCommand");
   })
   .post(async (req, res) => {
+
+    const data = await req.body;
+
+    if (data.isBits === "false" && data.isSubscription === "false" && data.isChannelPoint === "false") {
+      throw new Error("You must select at least one reward type.");
+    }
+
+    if (data.isChannelPoint === "true" && parseInt(data.cost) < 1) {
+      throw new Error("Cost must be greater than 0.");
+    }
+
+    if (data.isBits === "true" && parseInt(data.bits) < 1) {
+      throw new Error("Bits must be greater than 0.");
+    }
+
     const user = await db.user.findFirst({
       where: { id: { equals: parseInt(req.params.userId) } },
     });
@@ -123,7 +138,7 @@ router
       })
 
       const rewardsArr = await rewards.data["data"]
-      const data = await req.body;
+      
 
       rewardsArr.forEach((value: { title: string; }) => {
         //console.log(value)
@@ -132,21 +147,19 @@ router
         }
       });
 
-      if (parseInt(data.bits) < 1) {
-        throw new Error("Bits must be greater than 0.");
-      }
-
       try {
         await db.commands
         .create({
           data: {
             name: data.name,
-            cost: parseInt(data.cost),
+            cost: data.isChannelPoint === "true" ? parseInt(data.cost) : 0,
             command: data.command,
             userId: userId as number,
             is_bits: data.isBits === "true" ? true : false,
             is_subscription: data.isSubscription === "true" ? true : false,
-            bits: data.isBits === "true" ? parseInt(data.bits) : 0,
+            bits: data.isBits === "true" ? parseInt(data.bits) : undefined,
+            is_reward: data.isChannelPoint === "true" ? true : false,
+            subscription_end: data.isSubscription === "true" ? data.subscriptionEnd : undefined,
           },
         })
         .then(
