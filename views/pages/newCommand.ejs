@@ -34,11 +34,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
             <input class="input input-bordered w-full m-2" type="text" name="name" id="name" required placeholder="Whitelist">
             <label for="cost" class="label label-text">Cost</label>
             <input class="input input-bordered w-full m-2" type="number" name="cost" id="cost" required placeholder="1000">
-            <label for="server-password" class="label label-text">Server Command</label>
-            <input class="input input-bordered w-full m-2" type="text" name="command" id="command" required placeholder="/whitelist add $user">
+            <label for="command" class="label label-text">Server Command</label>
+            <input class="input input-bordered w-full m-2" type="text" name="command" id="command" required placeholder="whitelist add $user">
+            <label class="label cursor-pointer">
+                <span for="isSubscription" class="label-text">Subscription</span>
+                <input class="toggle toggle-primary" type="checkbox" name="isSubscription" id="isSubscription">    
+            </label>
+            <label class="label cursor-pointer">
+                <label for="isBits" class="label-text">Bits</label>
+                <input class="toggle toggle-primary" type="checkbox" name="isBits" id="isBits">
+            </label>
+            <input type="number" name="bits" id="bits" class="input input-bordered w-full m-2" disabled>
 
             <button class="btn btn-primary m-2">Submit</button>
         </form>
     </div>
 </body>
 </html>
+
+<script>
+    const bitsField = document.querySelector("#bits");
+    const bitsToggle = document.querySelector("#isBits")
+
+    bitsToggle.addEventListener("click", (e) => {
+        if (bitsToggle.checked) {
+            bitsField.disabled = false
+        } else {
+            bitsField.disabled = true
+        }
+    })
+</script>

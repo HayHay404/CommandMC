@@ -132,6 +132,10 @@ router
         }
       });
 
+      if (parseInt(data.bits) < 1) {
+        throw new Error("Bits must be greater than 0.");
+      }
+
       try {
         await db.commands
         .create({
@@ -140,6 +144,9 @@ router
             cost: parseInt(data.cost),
             command: data.command,
             userId: userId as number,
+            is_bits: data.isBits === "true" ? true : false,
+            is_subscription: data.isSubscription === "true" ? true : false,
+            bits: data.isBits === "true" ? parseInt(data.bits) : 0,
           },
         })
         .then(
