@@ -60,7 +60,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
     <div id="commands" class="flex flex-wrap justify-center">    
         <% user.commands.forEach(element => { %>
-            <div class="card w-64 bg-primary text-primary-content m-4" id="<%= element.id %>">
+            <div class="card w-64 bg-primary text-primary-content m-4" id="<%= element.reward_id %>">
                 <div class="card-body">
                     <h2 class="card-title"><%= element.name %> || <%= element.cost %> </h2>
                     <p><%= element.command %></p>

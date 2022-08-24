@@ -176,22 +176,24 @@ router
   })
   .patch(async (req, res) => {})
   .delete(async (req, res) => {
+  
     const reward = await db.commands.findFirst({where: {reward_id: {equals: req.params.rewardId}}})
     try {
       await axios.delete("https://api.twitch.tv/helix/channel_points/custom_rewards", {
         headers: headers,
         params: {
           "broadcaster_id": parseInt(req.params.userId),
-          "reward_id": reward?.reward_id
+          "id": reward?.reward_id
         }
       })
+
       await db.commands.delete({
         where: {
-          id: parseInt(req.params.rewardId),
+          id: reward?.id,
         },
       });
     } catch (error) {
-      return res.redirect("/users/" + req.params.userId);
+      return res.status(500).send("Could not delete reward.");
     }
-    return res.redirect(`/users/${req.params.userId}`);
+    return res.status(200).send("Deleted successfully.");
   });

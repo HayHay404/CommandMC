@@ -31,6 +31,9 @@ export async function createChanelPointReward(user : User, command: Commands) {
     try {
         try {
             // if returned with a 404, it automatically creates the new channel point reward
+            if (command.reward_id == null) {
+                throw new Error("No reward id found. Creating...");
+            }
             await axios.get("https://api.twitch.tv/helix/channel_points/custom_rewards", {
                 headers: headers,
                 params: {

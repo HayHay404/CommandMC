@@ -1,13 +1,13 @@
 
 const deleteBtns = document.querySelectorAll(".delete");
-// Add listener for each button in deleteBtns array. When clicked, delete the parent's parent.
 deleteBtns.forEach((btn) => {
     btn.addEventListener("click", async(e : any) => {
-        //console.log("Click")
-        await fetch(`${window.location}/rewards/` + btn.parentElement?.parentElement?.id, {
+
+        await fetch(`${window.location}/rewards/` + btn.parentElement?.parentElement?.parentElement?.id, {
             method: "DELETE",
         })
-        e.target?.parentElement.parentElement.remove();
+        console.log(btn.parentElement?.parentElement?.id)
+        e.target?.parentElement.parentElement.parentElement.remove();
     });
 });
 
@@ -20,7 +20,6 @@ updateUserBtn?.addEventListener("click", async(e : any) => {
         [key: string]: any;
       } = {}
       
-
     for (const [key, value] of updateForm.entries()) {
         data[key] = value;
     }
