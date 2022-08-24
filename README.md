@@ -9,7 +9,7 @@ Twitch bot to send commands via RCON to a Minecraft server from Twitch channel p
 CommandMC is a Twitch bot that allows for users to redeem custom rewards, and automatically sends a command to your connected minecraft server. This can be used for activities such as whitelist, sub roles on the server, and "viewer controls the world" events. It allows for higher interactivity between viewers and the streamer, and allows mods and the streamer to not have to focus on trivial tasks such as whitelist and autoroles white streaming.
 
 # Todo:
-- [ ] Migrate reward creation from on startup to on login
+- [x] Migrate reward creation from on startup to on login
 - [ ] Create edit page & functionality for rewards
 - [ ] Expand creation of rewards
 - [ ] Add listeners for subscription events/end subscription events

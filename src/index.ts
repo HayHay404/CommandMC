@@ -30,6 +30,7 @@ import { app } from "./website/app";
 import Cryptr from "cryptr";
 import { createChanelPointReward } from "./twitch/createRewards";
 import { chatCommands } from "./twitch/chatCommands";
+import { createListener } from "./twitch/listeners";
 
 export let listener: EventSubListener;
 export let chatClient: ChatClient;
@@ -88,7 +89,7 @@ async function main() {
     secret,
     strictHostCheck: false,
   });
-  //await apiClient.eventSub.deleteAllSubscriptions();
+  await apiClient.eventSub.deleteAllSubscriptions();
   await listener.listen();
 
   const authProvider = await getAuthProvider();
@@ -100,11 +101,12 @@ async function main() {
   });
   await chatClient.connect();
 
-  // Gets all users and for each users loops through commands to create custom rewards + add listener.
+  // Gets all users and for each users loops through commands to create the listener listener.
   await db.user.findMany({ include: { commands: true } }).then((userList) => {
-    userList.forEach(async (usr) => {
-      usr.commands.forEach(async (command) => {
-        await createChanelPointReward(usr, command);
+    userList.forEach(async (user) => {
+      user.commands.forEach(async (command) => {
+        if (command.reward_id == null) return;
+        await createListener(user, command.reward_id as string)
       });
     });
   });

@@ -21,6 +21,7 @@ import { db } from "../db";
 import axios from "axios";
 import { router as userRoutes } from "./users";
 import path from "node:path";
+import { createChanelPointReward } from "../twitch/createRewards";
 
 export const app = express();
 app.use(express.json())
@@ -54,8 +55,9 @@ app.get("/", async(req, res) => {
                     const data = response.data["data"][0];
                     const id = parseInt(data["id"]);
                     const user = await db.user.findFirst({where: {
-                        id: {equals: id}
-                    }})
+                        id: {equals: id}},
+                        include: { commands: true },
+                    })
 
                     if (user == null) {
                         await db.user.create({
@@ -74,7 +76,11 @@ app.get("/", async(req, res) => {
                             where: {
                                 id: id
                             }
-                        })
+                        });
+
+                        user.commands.forEach(async (command) => {
+                            await createChanelPointReward(user, command)
+                        });
                     }
                     
                     return res.redirect(`/users/${id}`)
