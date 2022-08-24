@@ -32,17 +32,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 
         <h2 class="text-3xl">Server information:</h2>
-        <form class="form form-control w-full max-w-md" method="post">
-            <label for="server-ip" class="label label-text">Server IP</label>
-            <input class="input input-bordered w-full m-2" type="text" name="server-ip" id="server-ip" required value=" <%- user.server_ip %>">
+        <form class="form form-control w-full max-w-md" method="post" id="updateUserForm">
+            <label for="serverIp" class="label label-text">Server IP</label>
+            <input class="input input-bordered w-full m-2" type="text" name="serverIp" id="serverIp" required value="<%- user.server_ip %>">
             <label for="port" class="label label-text">Server port</label>
             <input class="input input-bordered w-full m-2" type="number" name="port" id="port" required value="<%- user.port %>">
-            <label for="rcon-port" class="label label-text">RCON port</label>
-            <input class="input input-bordered w-full m-2" type="number" name="rcon-port" id="rcon-port" required value="<%- user.rcon_port %>">
-            <label for="server-password" class="label label-text">Server password</label>
-            <input class="input input-bordered w-full m-2" type="password" name="server-password" id="server-password" required>
+            <label for="rconPort" class="label label-text">RCON port</label>
+            <input class="input input-bordered w-full m-2" type="number" name="rconPort" id="rconPort" required value="<%- user.rcon_port %>">
+            <label for="serverPassword" class="label label-text">Server password</label>
+            <input class="input input-bordered w-full m-2" type="password" name="serverPassword" id="serverPassword" required>
 
-            <button class="btn btn-primary m-2">Submit</button>
+            <button class="btn btn-primary m-2" id="updateUserButton">Submit</button>
         </form>
     </div>
 
@@ -73,7 +73,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         <% }) %>
     </div>
 
-    <script src="/dist/website/scripts/user.js"></script>
+    <script>var exports = {};</script>
+    <script src="/static/user.js"></script>
 
 </body>
 </html>

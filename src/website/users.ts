@@ -20,7 +20,7 @@ import { User } from "@prisma/client";
 import { Router, Express } from "express";
 import { db } from "../db";
 import { createChanelPointReward } from "../twitch/createRewards";
-import { apiClient, cryptr } from "../index";
+import { cryptr } from "../index";
 import axios from "axios";
 
 export const router: Express = Router() as Express;
@@ -61,31 +61,38 @@ router
       return res.render("pages/user", { user });
   })
   .patch(async (req, res) => {
+    // Get the data sent from patch request
+    const data = req.body;
+    const { serverIp, port, rconPort, serverPassword } = data;
+
+    if (!serverIp || !port || !rconPort || (!serverPassword && !user.password)) {
+      return res.status(400).send("Missing data.");
+    }
+    if (serverPassword === "password") {
+      return res.status(400).send("Password cannot be 'password' or empty.");
+    }
+
     try {
-      if (req.body.password !== "undefined") {
-        const encryptedPassword = cryptr.encrypt(req.body.password);
+      const encryptedPassword = cryptr.encrypt(serverPassword);
 
-        await db.user.update({
-          where: {
-            id: parseInt(req.params.id),
-          },
-          data: {
-            server_ip: req.body.server_ip,
-            port: parseInt(req.body.port),
-            password: encryptedPassword,
-          },
-        });
-      }
-
-      return res.redirect(`/users/${parseInt(req.params.id)}`);
+      await db.user.update({
+        where: { id: user.id },
+        data: {
+          server_ip: serverIp,
+          port: parseInt(port),
+          rcon_port: parseInt(rconPort),
+          password: encryptedPassword,
+        }
+      });
+      return res.status(200).send("Updated successfully.");
     } catch (error) {
       return res
-        .status(404)
+        .status(500)
         .send(
           "Could not update user." +
             "<script>setTimeout(function() {window.location = '/';}, 5000)</script>"
         );
-    }
+    }    
   });
 
 router

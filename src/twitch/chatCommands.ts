@@ -24,6 +24,8 @@ import { validateMCAccount } from "../mcSide";
 export function chatCommands() {
 
     chatClient.onMessage(async(channel, user, message) => {
+
+        // Command to link a minecraft account to a Twitch account
         if (message.startsWith("!link")) {
             const messageArr = message.split(" ");
             if (messageArr.length !== 2) return chatClient.say(channel, `@${user}, remember to inclde your minecraft username.`)
@@ -52,6 +54,7 @@ export function chatCommands() {
             }
         }
 
+        // Command to unlink a minecraft account
         if (message.startsWith("!unlink")) {
             const id : string = await apiClient.users.getUserByName(user).then((user) => {return user?.id as string});
 
@@ -63,6 +66,9 @@ export function chatCommands() {
             }
         }
 
-        if (message.startsWith("!docs")) return chatClient.say(channel, "CommandMC Documentation: https://docs.commandmc.hayhay.link")
+        // Misc commands
+
+        if (message.startsWith("!docs")) return chatClient.say(channel, "CommandMC Documentation: https://docs.commandmc.hayhay.link");
+        if (message.startsWith("!ping")) return chatClient.say(channel, "Pong!");
     })
 }
