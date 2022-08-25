@@ -21,9 +21,9 @@ import { listener } from "../index";
 import { executeCommand } from "../mcSide";
 
 export async function createListener(user : User, reward : Commands) {
-    const rewardId = reward.reward_id as string;
 
     if (reward.is_reward) {
+        const rewardId = reward.reward_id as string;
         try {
             await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, async (data) => {
 
@@ -38,9 +38,8 @@ export async function createListener(user : User, reward : Commands) {
                         console.log(data.status)
                     }
                     */
-                })
-                
-            }) 
+                })  
+            })
         } catch (error) {
             console.log(error)
         }

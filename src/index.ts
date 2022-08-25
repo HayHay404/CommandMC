@@ -72,7 +72,7 @@ async function main() {
   const appTokenAuthProvider = new ClientCredentialsAuthProvider(
     clientId,
     clientSecret,
-    ["channel:manage:redemptions", "channel:read:redemptions", "user:read:email", "chat:read", "chat:edit"]
+    ["channel:manage:redemptions", "channel:read:redemptions", "user:read:email", "chat:read", "chat:edit", "bits:read", "channel:read:subscriptions"]
   );
   apiClient = new ApiClient({ authProvider: appTokenAuthProvider });
 
@@ -105,7 +105,6 @@ async function main() {
   await db.user.findMany({ include: { commands: true } }).then((userList) => {
     userList.forEach(async (user) => {
       user.commands.forEach(async (command) => {
-        if (command.reward_id == null) return;
         await createListener(user, command)
       });
     });
