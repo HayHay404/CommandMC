@@ -27,7 +27,7 @@ export async function createListener(user : User, reward : Commands) {
         try {
             await listener.subscribeToChannelRedemptionAddEventsForReward(user.id, rewardId, async (data) => {
 
-                await executeCommand(user, reward, data.userId).then(async (value) => {
+                return await executeCommand(user, reward, data.userId).then(async (value) => {
                     // TODO: Causing issues for now. Fix later. Low priority.
                     /*
                     if (value == true) {
@@ -48,7 +48,7 @@ export async function createListener(user : User, reward : Commands) {
     if (reward.is_subscription) {
         try {
             await listener.subscribeToChannelSubscriptionEvents(user.id, async (data) => {
-                    await executeCommand(user, reward, data.userId).then(async (value) => {
+                    return await executeCommand(user, reward, data.userId).then(async (value) => {
                 })
             })
         } catch (error) {
@@ -57,7 +57,7 @@ export async function createListener(user : User, reward : Commands) {
 
         try {
             await listener.subscribeToChannelSubscriptionEndEvents(user.id, async (data) => {
-                    await executeCommand(user, reward, data.userId, true).then(async (value) => {
+                    return await executeCommand(user, reward, data.userId, true).then(async (value) => {
                 })
             })
         } catch (error) {
@@ -65,17 +65,13 @@ export async function createListener(user : User, reward : Commands) {
         }
     }
 
-    /*
     if (reward.is_bits) {
         try {
-            await listener.subscribeToExtensionBitsTransactionCreateEvents(user.id, async (data) => {
-                await executeCommand(user, rewardId, data.userId).then(async (value) => {
-                })
+            await listener.subscribeToChannelCheerEvents(user.id, async (data) => {
+                if (data.userId != null) return await executeCommand(user, reward, data.userId)
             })
         } catch (error) {
             console.log(error)
         }
     }
-    */
-
 }
