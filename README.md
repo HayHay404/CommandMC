@@ -19,6 +19,6 @@ CommandMC is a Twitch bot that allows for users to redeem custom rewards, and au
 
 # Useful Links for the project
 
-Website: https://commandmc.hayhay.link
+Website: https://commandmc.hayhay.cc
 <br />
-Docs: https://docs.commandmc.hayhay.link
+Docs: https://docs.commandmc.hayhay.cc

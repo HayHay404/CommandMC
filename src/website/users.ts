@@ -116,7 +116,7 @@ router
       throw new Error("Bits must be greater than 0.");
     }
 
-    const user = await db.user.findFirst({
+    const user : User | null = await db.user.findFirst({
       where: { id: { equals: parseInt(req.params.userId) } },
     });
     const userId = user?.id;
@@ -199,13 +199,15 @@ router
   
     const reward = await db.commands.findFirst({where: {reward_id: {equals: req.params.rewardId}}})
     try {
-      await axios.delete("https://api.twitch.tv/helix/channel_points/custom_rewards", {
-        headers: headers,
-        params: {
-          "broadcaster_id": parseInt(req.params.userId),
-          "id": reward?.reward_id
-        }
-      })
+      if (reward?.is_reward) {
+        await axios.delete("https://api.twitch.tv/helix/channel_points/custom_rewards", {
+          headers: headers,
+          params: {
+            "broadcaster_id": parseInt(req.params.userId),
+            "id": reward?.reward_id
+          }
+        })
+      }
 
       await db.commands.delete({
         where: {
