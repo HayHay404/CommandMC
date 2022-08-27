@@ -28,7 +28,7 @@ import { promises as fs } from "fs";
 import { db } from "./db";
 import { app } from "./website/app";
 import Cryptr from "cryptr";
-import { createChanelPointReward } from "./twitch/createRewards";
+import path from "node:path";
 import { chatCommands } from "./twitch/chatCommands";
 import { createListener } from "./twitch/listeners";
 
@@ -56,7 +56,7 @@ async function getAuthProvider() {
       clientSecret,
       onRefresh: async (newTokenData) =>
         await fs.writeFile(
-          "./tokens.json",
+          path.resolve(__dirname, "tokens.json"),
           JSON.stringify(newTokenData, null, 4),
           "utf-8"
         ),

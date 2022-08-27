@@ -152,14 +152,14 @@ router
         .create({
           data: {
             name: data.name,
-            cost: data.isChannelPoint === "true" ? parseInt(data.cost) : 0,
+            cost: data.isChannelPoint === "on" ? parseInt(data.cost) : 0,
             command: data.command,
             userId: userId as number,
-            is_bits: data.isBits === "true" ? true : false,
-            is_subscription: data.isSubscription === "true" ? true : false,
-            bits: data.isBits === "true" ? parseInt(data.bits) : undefined,
-            is_reward: data.isChannelPoint === "true" ? true : false,
-            subscription_end: data.isSubscription === "true" ? data.subscriptionEnd : undefined,
+            is_bits: data.isBits === "on" ? true : false,
+            is_subscription: data.isSubscription === "on" ? true : false,
+            bits: data.isBits === "on" ? parseInt(data.bits) : undefined,
+            is_reward: data.isChannelPoint === "on" ? true : false,
+            subscription_end: data.isSubscription === "on" ? data.subscriptionEnd : undefined,
           },
         })
         .then(
