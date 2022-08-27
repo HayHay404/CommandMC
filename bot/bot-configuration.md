@@ -1,6 +1,6 @@
 # Bot Configuration
 
-Once you've [configured your Minecraft server](server-configuration.md), you're ready to edit the bot's config on the [website](https://commandmc.hayhay.link/).&#x20;
+Once you've [configured your Minecraft server](server-configuration.md), you're ready to edit the bot's config on the [website](https://commandmc.hayhay.dev).&#x20;
 
 Upon pressing "Sign in with Twitch", you'll be redirected to a page to invite the bot to your channel. Upon accepting, you'll be once again redirected to a panel to set your server configuration.
 
