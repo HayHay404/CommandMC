@@ -68,7 +68,7 @@ export function chatCommands() {
 
         // Misc commands
 
-        if (message.startsWith("!docs")) return chatClient.say(channel, "CommandMC Documentation: https://docs.commandmc.hayhay.cc");
+        if (message.startsWith("!docs")) return chatClient.say(channel, "CommandMC Documentation: https://docs.hayhay.dev/commandmc");
         if (message.startsWith("!ping")) return chatClient.say(channel, "Pong!");
     })
 }

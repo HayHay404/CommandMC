@@ -4,3 +4,4 @@ tokens.json
 dist/
 prisma/migrations
 seed.psql
+ecosystem.config.js
